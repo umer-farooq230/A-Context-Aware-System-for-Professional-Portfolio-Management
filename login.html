@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Portfolio Manager</title>
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="/favicon.ico">
+</head>
+<body class="auth-body">
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="brand-mark">PM</div>
+      <div class="brand-name">Portfolio<span>Manager</span></div>
+      <p class="brand-tag">Optimization &amp; risk analytics console</p>
+    </div>
+
+    <form class="auth-card" id="loginForm">
+      <h1>Sign in</h1>
+      <p class="auth-sub">Use your account credentials to continue.</p>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" id="email" placeholder="you@firm.com" autocomplete="username" required>
+      </label>
+
+      <label class="field">
+        <span>Password</span>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+      </label>
+
+      <div class="auth-row">
+        <label class="checkbox">
+          <input type="checkbox" id="remember">
+          <span>Remember me</span>
+        </label>
+        <a href="#" class="link-muted">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" id="loginBtn">Sign in</button>
+      <p class="auth-error" id="authError" hidden>Invalid email or password.</p>
+
+      <div class="auth-hint">
+        <strong>Demo credentials</strong>
+        <code>demo@portfolio.io</code> / <code>Demo@1234</code>
+      </div>
+    </form>
+
+    <p class="auth-footer">© 2026 Portfolio Manager. Internal use only.</p>
+  </div>
+
+  <script>
+    // Real auth flow — backend: POST /auth/login -> { access_token, token_type }
+    // API_BASE is empty because the FastAPI backend now serves this page
+    // itself (same origin). If you ever serve the frontend separately again,
+    // set API_BASE to e.g. "http://127.0.0.1:8000".
+    const API_BASE = "";
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const errorEl = document.getElementById("authError");
+      const btn = document.getElementById("loginBtn");
+
+      errorEl.hidden = true;
+      btn.disabled = true;
+      btn.textContent = "Signing in...";
+
+      try {
+        // FastAPI's OAuth2PasswordRequestForm expects
+        // application/x-www-form-urlencoded with "username" and "password"
+        // fields (not JSON, and the field is "username" even though it
+        // holds an email address).
+        const body = new URLSearchParams();
+        body.set("username", email);
+        body.set("password", password);
+
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body,
+        });
+
+        if (!res.ok) {
+          throw new Error("Invalid email or password.");
+        }
+
+        const data = await res.json();
+        localStorage.setItem("access_token", data.access_token);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        console.error(err);
+        errorEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = "Sign in";
+      }
+    });
+  </script>
+</body>
+</html>

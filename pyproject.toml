@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aura-ascii"
+version = "0.1.0"
+description = "Tiny, fun CLI that prints ASCII portraits in your terminal: aura --piccolo -1"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["Pillow>=10.0"]
+keywords = ["ascii", "ascii-art", "cli", "terminal", "fun"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+aura = "aura.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+aura = ["images/*"]
